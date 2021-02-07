@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1612714648 source:c:\users\lenovo\desktop\gameawale\awalegame\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<windows.h>
+
