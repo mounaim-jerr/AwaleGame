@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <windows.h>
 struct player
 {
     char firstName [20];
@@ -30,20 +31,24 @@ int display (int lignes, int collones,int tab[lignes][collones] );
 int init(int lignes,int collones,int tab[lignes][collones]);
 main ()
 {
+    int playOrWatch =0;
     int lignes=2;
     int collones=6;
     int tab [lignes][collones];
-    int i =0 ;
     int playCase=0;
     int totalGrain =1;
     struct player playerHigh = {playerHigh.firstName,playerHigh.position,0};
     struct game gameAwale   = { gameAwale.next,gameAwale.current, gameAwale.scoreFinalHigh,gameAwale.scoreFinalLow,playerHigh, gameAwale.playerLow };
     struct cases awaleCases = {awaleCases.lignes,awaleCases.collones};
-    printf ("player high : please write your name\n");
+    printf("\n press 1 to watch the last game \n ");
+    scanf("%d",&playOrWatch);
+    if (playOrWatch==0){
+      printf ("player high : please write your name\n");
     scanf ("%s", &gameAwale.playerHigh.firstName);
     printf ("\n");
     printf ("player low : please write your name\n");
     scanf ("%s", &gameAwale.playerLow.firstName);
+    }
     gameAwale.playerHigh.position=0;
     gameAwale.playerLow.position=1;
     gameAwale.current=gameAwale.playerHigh;
@@ -52,13 +57,66 @@ main ()
     gameAwale.playerLow.scorePlayer=0;
     init(lignes,collones,tab);
     display(lignes,collones,tab);
-    while (gameAwale.playerHigh.scorePlayer+gameAwale.playerLow.scorePlayer!=48)
+    int i=0;
+    FILE *lowFile ;
+    FILE *highFile ;
+    if(playOrWatch==0)
+    {
+
+    lowFile = fopen("lowFile.txt","w") ;
+    if (lowFile==NULL)
+    {
+        printf("error\n") ;
+        exit(1) ;
+    }
+    highFile = fopen ("highFile.txt","w") ;
+    if (highFile== NULL)
+    {
+        printf("error\n") ;
+        exit(1) ;
+    }
+    }
+    else{
+    lowFile = fopen("lowFile.txt","r") ;
+    if (lowFile==NULL)
+    {
+        printf("error\n") ;
+        exit(1) ;
+    }
+    highFile = fopen ("highFile.txt","r") ;
+    if (highFile== NULL)
+    {
+        printf("error\n") ;
+        exit(1) ;
+    }
+    }
+     while (gameAwale.playerHigh.scorePlayer+gameAwale.playerLow.scorePlayer!=48)
+    // while (i!=10)
     {
         i++;
         gameAwale = turnFun (gameAwale);
-        printf ("\n");
-        printf ("%s choose a case please \n", gameAwale.current.firstName);
-        scanf ("%d", &playCase);
+       // printf (" \n %s choose a case please \n", gameAwale.current.firstName);
+        if(playOrWatch!=0)
+            {
+                if(gameAwale.current.position==1)
+                {
+                 fscanf(lowFile,"%d",&playCase);
+                 fseek(lowFile, +1, SEEK_CUR);
+                 printf("\n player low play case :%d\n",playCase);
+                 Sleep(1000);
+                }
+                if(gameAwale.current.position==0)
+                {
+                   fscanf(highFile,"%d",&playCase);
+                   fseek(highFile, +1, SEEK_CUR);
+                   printf("\n player high play case :%d\n",playCase);
+                   Sleep(1000);
+                }
+            }
+            else{
+                printf (" \n %s choose a case please \n", gameAwale.current.firstName);
+                scanf ("%d", &playCase);
+            }
         while (playCase<0 || playCase>5)
         {
             printf("you must choose a case between 0 and 5 : \n");
@@ -68,6 +126,14 @@ main ()
         {
             printf("you cant choose an empty case \n try again please :\n");
             scanf("%d",&playCase);
+        }
+        if (gameAwale.current.position==0)
+        {
+            fprintf(highFile,"%d\n",playCase);
+        }
+        if (gameAwale.current.position==1)
+        {
+            fprintf(lowFile,"%d\n",playCase);
         }
         struct cases awaleCases=moveGrain(gameAwale.current.position,playCase,tab);
         if (awaleCases.lignes==gameAwale.next.position)
@@ -97,12 +163,16 @@ main ()
                     gameAwale.playerLow.scorePlayer+=restScore;
                 }
             }
+
         }
         printf("player high score: %d\n",gameAwale.playerHigh.scorePlayer);
         printf("player low score: %d\n",gameAwale.playerLow.scorePlayer);
         display(lignes,collones,tab);
 
     }
+
+    fclose(lowFile);
+    fclose(highFile);
 }
 int collect ( int ligne,  int lastCase,int tab[2][6]  )
 {
@@ -301,3 +371,7 @@ int verFin (int lignes,int collones, int tab[lignes][collones])
     return caseIndex ;
 }
 */
+
+
+
+
